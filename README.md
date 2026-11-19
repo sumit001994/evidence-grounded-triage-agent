@@ -145,14 +145,42 @@ every case lands in exactly one bucket; none dropped from any denominator
 
 Small, hand-labelled, **uncalibrated** sets. Not a benchmark.
 
-- **30 frozen cases** through the real client and service: **22 label matches**, 6 correct
-  abstentions, 5 uncertain, **3 confidently wrong**. All three wrong answers passed structural
+- **30 frozen cases** through the real client and service, each counted exactly once:
+  **16 correct + 6 correct abstentions** (22 label matches), **5 returned UNCERTAIN** for a person
+  to decide, and **3 confidently wrong** = 30. All three wrong answers passed structural
   validation: a valid structure is not a correct diagnosis.
 - The development set (9/9) was used while tuning, so it is not a fair test. The least-tuned set
   scored 2 of 5.
 - One real two-agent run completed 2 of 3 cases; the harness rejected the third. I traced the cause
   to a gap between the specialist's check and the coordinator's request, and fixed it.
 - 545 offline tests pass; none calls a provider.
+
+## Design decisions
+
+- **A2A and MCP do different jobs.** MCP gives one agent its tools and data. A2A lets separate
+  agents hand each other work through a published capability card, with task states and a
+  traceable result. I use MCP for the tool front door and A2A where a caller needs a bounded,
+  auditable answer from another agent.
+- **Why A2A here, when a direct call would run.** It gives a clear boundary: the service stays
+  read-only, the caller validates every answer, and a second agent can be added behind the same
+  contract without changing the caller.
+- **Retrieval is deliberately simple today.** The knowledge base is small, so exact in-memory
+  search is accurate and easy to reason about. The retrieval sits behind an interface, so moving to
+  a managed vector index is a swap, not a rewrite.
+- **Production path (design, not built).** When the corpus, update rate or concurrency grows:
+  move to a managed hybrid index (for example Postgres with pgvector, or a cloud search service),
+  keep the access-control filter ahead of ranking, and run old and new retrieval side by side on
+  the same frozen cases before switching.
+
+## Observability
+
+- **Built:** each run records a redacted per-step trace (what was called, in what order, how long),
+  model-call and time budgets, and the caller's validation result. Raw failure text and secrets do
+  not enter the trace.
+- **Signals I would watch in production:** latency percentiles, cost per case, abstention rate,
+  validation-rejection rate, and drift against the frozen cases.
+- **Design, not built:** export traces with OpenTelemetry, carry a trace id across the A2A hop so
+  caller and service appear as one trace, and alert on the signals above.
 
 ## My role
 
