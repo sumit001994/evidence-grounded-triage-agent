@@ -155,6 +155,19 @@ Small, hand-labelled, **uncalibrated** sets. Not a benchmark.
   to a gap between the specialist's check and the coordinator's request, and fixed it.
 - 545 offline tests pass; none calls a provider.
 
+## Run evidence (redacted)
+
+A real offline run of the A2A route: the client discovers the Agent Card, sends one task per
+failure, and validates every answer. One of the two cases shown is **wrong against its label yet
+passes validation**, on purpose, to show what validation does and does not prove. Note names,
+scores, thresholds and case ids are removed; the knowledge base and cases stay private.
+
+![Redacted terminal run of the A2A triage demo](proof/terminal_run.png)
+
+- [`proof/terminal_run_redacted.txt`](proof/terminal_run_redacted.txt): the same run as text.
+- [`proof/sample_triage_result.json`](proof/sample_triage_result.json): the shape of one answer,
+  with its eight validation checks. Values are illustrative.
+
 ## Design decisions
 
 - **A2A and MCP do different jobs.** MCP gives one agent its tools and data. A2A lets separate

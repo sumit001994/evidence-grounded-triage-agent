@@ -1,0 +1,64 @@
+{
+  "note": "Redacted sample of the shape of one answer. Values are illustrative; no real note names, scores or thresholds.",
+  "task_state": "TASK_STATE_COMPLETED",
+  "category": "AUTH_TOKEN",
+  "decided_by": "retrieval (top-ranked note)",
+  "citations": [
+    "note-1",
+    "note-2",
+    "note-3"
+  ],
+  "evidence": [
+    {
+      "rank": 1,
+      "category": "AUTH_TOKEN",
+      "similarity": "<n>"
+    },
+    {
+      "rank": 2,
+      "category": "ASYNC_TIMING",
+      "similarity": "<n>"
+    },
+    {
+      "rank": 3,
+      "category": "TEST_DATA_MISSING",
+      "similarity": "<n>"
+    }
+  ],
+  "remediation_authorized": false,
+  "validation": [
+    {
+      "check": "result has the expected shape",
+      "passed": true
+    },
+    {
+      "check": "no remediation authorised, no fix claimed",
+      "passed": true
+    },
+    {
+      "check": "result is bound to this request",
+      "passed": true
+    },
+    {
+      "check": "cited notes and chunks exist",
+      "passed": true
+    },
+    {
+      "check": "returned evidence is the stored source text",
+      "passed": true
+    },
+    {
+      "check": "category agrees with the cited source",
+      "passed": true
+    },
+    {
+      "check": "decision matches its confidence (abstention preserved)",
+      "passed": true
+    },
+    {
+      "check": "evidence shares words with the failure (weak sanity check)",
+      "passed": true
+    }
+  ],
+  "needs_human": false
+}

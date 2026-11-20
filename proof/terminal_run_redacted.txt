@@ -1,0 +1,86 @@
+[DEMO] SYNTHETIC reports built from frozen labelled cases (not Maven output) -> running the real A2A route
+[A2A] 5 failed/errored test case(s) found in synthetic-reports/
+
+━━━━ Step 1: read the test results (plain code, no AI) ━━━━
+   🚀 Pipeline       ──▶ 🔎 Parser          parse TEST-*.xml in synthetic-reports/
+   🔎 Parser         ──▶ 🚀 Pipeline        5 failed test(s): case, case, case, case, case
+[A2A] starting the triage service (deterministic) on http://127.0.0.1:<port>  ...
+
+━━━━ Step 2: start the triage service and discover it ━━━━
+   🚀 Pipeline       ──▶ 🤖 Triage service  start it on http://127.0.0.1:<port> (loopback only; no downloads; no model keys)
+   📡 A2A client     ──▶ 🤖 Triage service  GET /.well-known/agent-card.json  (who are you, what can you do?)
+   🤖 Triage service ──▶ 📡 A2A client      Agent Card: name='Grounded triage agent (project 02)', skills=['Classify a test failure'], endpoint=http://127.0.0.1:<port>
+
+━━━━ Step 3: one task per failure, then the caller checks the answer ━━━━
+   🚀 Pipeline          failure 2/5: case
+   📡 A2A client     ──▶ 🤖 Triage service  SendMessage: failure text only (90 chars message, 0 chars trace). No XML is sent; no key is sent.
+   🤖 Triage service ──▶ 📡 A2A client      task <id> -> COMPLETED; triage_result.json 
+   -- what the service reports --
+   🤖 Triage service ──▶ 📡 A2A client      decided by: RETRIEVAL. no specific keyword rule matched, so the top-ranked note decided: AUTH_TOKEN. Its similarity (<n>) met the threshold. This is a lookup of stored notes, not generated reasoning.
+   🤖 Triage service    retrieved evidence (3 notes, in rank order; rank = order after fusing embedding search with BM25 keyword search (an order, not a score)):
+   🤖 Triage service      rank 1  note-1  [AUTH_TOKEN]  similarity <n>
+   🤖 Triage service      rank 2  note-2  [ASYNC_TIMING]  similarity <n>
+   🤖 Triage service      rank 3  note-3  [TEST_DATA_MISSING]  similarity <n>
+   🤖 Triage service      similarity = highest cosine similarity of any chunk of the note to the failure text (a similarity score, not a probability of being right)
+   📡 A2A client     ──▶ 🧪 Validation      result file is one well-formed JSON object; please check its content
+   🧪 Validation        ✔ result has the expected shape: category=AUTH_TOKEN source=retrieval
+   🧪 Validation        ✔ no remediation authorised, no fix claimed: remediation_authorized=False
+   🧪 Validation        ✔ result is bound to this request: failure-text hash matches
+   🧪 Validation        ✔ cited notes and chunks exist: 3 citation(s) found in the knowledge base
+   🧪 Validation        ✔ returned evidence is the stored source text: returned text equals the stored chunk and lies inside the note
+   🧪 Validation        ✔ category agrees with the cited source: claimed AUTH_TOKEN; top cited note documents AUTH_TOKEN
+   🧪 Validation        ✔ decision matches its confidence (abstention preserved): confidence <n> vs threshold <t>
+   🧪 Validation        ✔ evidence shares words with the failure (weak sanity check): best shared: [...] (needs 2, over 3 citation(s))
+   🚀 Pipeline          ✔ verdict: accepted (category=AUTH_TOKEN, decided by retrieval, cites=[3 notes])
+   🚀 Pipeline          next: information only: category and citations attached; any fix is a separate, human-approved step
+   🚀 Pipeline          heal stage: human_needed - category AUTH_TOKEN has no safe automated action
+[A2A] case
+      state=TASK_STATE_COMPLETED status=accepted category=AUTH_TOKEN source=retrieval cites=[3 notes]
+      next: information only: category and citations attached; any fix is a separate, human-approved step
+   🚀 Pipeline          failure 5/5: case
+   📡 A2A client     ──▶ 🤖 Triage service  SendMessage: failure text only (100 chars message, 0 chars trace). No XML is sent; no key is sent.
+   🤖 Triage service ──▶ 📡 A2A client      task <id> -> COMPLETED; triage_result.json 
+   -- what the service reports --
+   🤖 Triage service ──▶ 📡 A2A client      decided by: RETRIEVAL. no specific keyword rule matched, so the top-ranked note decided: PRODUCT_RULE_CHANGE. Its similarity (<n>) met the threshold. This is a lookup of stored notes, not generated reasoning.
+   🤖 Triage service    retrieved evidence (3 notes, in rank order; rank = order after fusing embedding search with BM25 keyword search (an order, not a score)):
+   🤖 Triage service      rank 1  note-5  [PRODUCT_RULE_CHANGE]  similarity <n>
+   🤖 Triage service      rank 2  note-6  [DATA_PRECONDITION_FAILED]  similarity <n>
+   🤖 Triage service      rank 3  note-2  [ASYNC_TIMING]  similarity <n>
+   🤖 Triage service      similarity = highest cosine similarity of any chunk of the note to the failure text (a similarity score, not a probability of being right)
+   🤖 Triage service      NOTE: the top-ranked note was decided by rank fusion: rank comes from fusing with BM25; when retrieval decides, the category follows the rank-1 note
+   📡 A2A client     ──▶ 🧪 Validation      result file is one well-formed JSON object; please check its content
+   🧪 Validation        ✔ result has the expected shape: category=PRODUCT_RULE_CHANGE source=retrieval
+   🧪 Validation        ✔ no remediation authorised, no fix claimed: remediation_authorized=False
+   🧪 Validation        ✔ result is bound to this request: failure-text hash matches
+   🧪 Validation        ✔ cited notes and chunks exist: 3 citation(s) found in the knowledge base
+   🧪 Validation        ✔ returned evidence is the stored source text: returned text equals the stored chunk and lies inside the note
+   🧪 Validation        ✔ category agrees with the cited source: claimed PRODUCT_RULE_CHANGE; top cited note documents PRODUCT_RULE_CHANGE
+   🧪 Validation        ✔ decision matches its confidence (abstention preserved): confidence <n> vs threshold <t>
+   🧪 Validation        ✔ evidence shares words with the failure (weak sanity check): best shared: [...] (needs 2, over 3 cita
+   🚀 Pipeline          ✔ verdict: accepted (category=PRODUCT_RULE_CHANGE, decided by retrieval, cites=[3 notes])
+   🚀 Pipeline          next: information only: category and citations attached; any fix is a separate, human-approved step
+   🚀 Pipeline          heal stage: human_needed - category PRODUCT_RULE_CHANGE has no safe automated action
+[A2A] case
+      state=TASK_STATE_COMPLETED status=accepted category=PRODUCT_RULE_CHANGE source=retrieval cites=[3 notes]
+      next: information only: category and citations attached; any fix is a separate, human-approved step
+
+
+━━━━ Step 4: clean up and save ━━━━
+   🚀 Pipeline       ──▶ 🤖 Triage service  stop (only the process this run started)
+[A2A] stopped the service this run started.
+   🚀 Pipeline       ──▶ 💾 Saved results   wrote a2a_triage.json and a2a_conversation.txt (this transcript, plain text)
+[A2A] classification: every failure has a validated answer (2 for a person)
+[A2A] overall: complete
+[A2A] result file: <path> (exit 0)
+
+[DEMO] label vs what came back (the label is the author's expectation, not proof):
+  case       expected=STATE_LOCK               got=STATE_LOCK               matches  mechanism=keyword rule
+                       shows: keyword rule decides (retrieval only attaches evidence)
+  case           expected=AUTH_TOKEN               got=AUTH_TOKEN               matches  mechanism=retrieval
+                       shows: retrieval decides (no specific keyword matched)
+  case          expected=STATE_LOCK               got=UNCERTAIN                DIFFERS  mechanism=look-alike causes
+                       shows: look-alike causes: no category forced (UNCERTAIN)
+  case        expected=UNKNOWN                  got=UNKNOWN                  matches  mechanism=abstention
+                       shows: abstention: nothing matched well enough (UNKNOWN)
+  case   expected=DATA_PRECONDITION_FAILED got=PRODUCT_RULE_CHANGE      DIFFERS  mechanism=retrieval
+                       shows: retrieval decides and is WRONG against its label, yet passes validation
